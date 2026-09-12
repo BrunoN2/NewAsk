@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { addFocused, bumpCompleted, bumpStreak } from '../stats';
 import { taskDone, taskUndo, pluck, startMorningAmbience, stopMorningAmbience } from '../audio';
+import CampfireFocus from '../components/CampfireFocus';
 
 type Task = { id: string; label: string; done: boolean };
 type Category = { name: string; tasks: Task[] };
@@ -60,8 +61,6 @@ function loadTasks(): Category[] {
   return INITIAL;
 }
 
-const pad = (n: number) => String(n).padStart(2, '0');
-
 export default function HomeScreen() {
   const [cats, setCats] = useState<Category[]>(loadTasks);
   const [remaining, setRemaining] = useState(25 * 60);
@@ -106,9 +105,6 @@ export default function HomeScreen() {
     wakeRef.current = null;
   };
 
-  const setDim = (on: boolean) =>
-    document.querySelector('.phone')?.classList.toggle('focus-dim', on);
-
   const accumulateFocus = () => {
     if (startedAtRef.current !== null) {
       addFocused(Date.now() - startedAtRef.current);
@@ -144,7 +140,6 @@ export default function HomeScreen() {
       }
       stopMorningAmbience();
       releaseWake();
-      setDim(false);
     },
     [],
   );
@@ -286,9 +281,7 @@ export default function HomeScreen() {
       <div className="focusbox">
         <div className="kicker">{kickerLabel}</div>
         <div className="task">{firstPending ?? 'Sem tarefas na fila — adicione uma'}</div>
-        <div className="timer">
-          {pad(Math.floor(remaining / 60))}:{pad(remaining % 60)}
-        </div>
+        <CampfireFocus remaining={remaining} total={25 * 60} running={running} />
         <button
           className="ink-mini addfive"
           title="Modo avião — adicione 5 minutos de foco do dispositivo"
@@ -303,12 +296,10 @@ export default function HomeScreen() {
               accumulateFocus();
               stopMorningAmbience();
               releaseWake();
-              setDim(false);
             } else {
               startedAtRef.current = Date.now();
               startMorningAmbience();
               void acquireWake();
-              setDim(true);
             }
             setRunning((r) => !r);
           }}
