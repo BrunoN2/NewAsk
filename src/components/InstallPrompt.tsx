@@ -6,9 +6,11 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+const DISMISS_KEY = 'nuvask.install-prompt-dismissed';
+
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISS_KEY) === 'true');
   const [isIos, setIsIos] = useState(false);
 
   useEffect(() => {
@@ -25,6 +27,11 @@ export default function InstallPrompt() {
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
+
+  const closePrompt = () => {
+    localStorage.setItem(DISMISS_KEY, 'true');
+    setDismissed(true);
+  };
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
@@ -46,7 +53,7 @@ export default function InstallPrompt() {
         </button>
         <button
           className="install-prompt__close"
-          onClick={() => setDismissed(true)}
+          onClick={closePrompt}
           aria-label="Fechar"
           type="button"
         >
@@ -64,7 +71,7 @@ export default function InstallPrompt() {
         </span>
         <button
           className="install-prompt__close"
-          onClick={() => setDismissed(true)}
+          onClick={closePrompt}
           aria-label="Fechar"
           type="button"
         >

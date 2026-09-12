@@ -2,7 +2,9 @@
 /// <reference lib="es2020"/>
 /// <reference lib="webworker"/>
 
-const CACHE_NAME = 'nuvask-v1';
+const CACHE_NAME = 'nuvask-v2';
+const BUILD_ASSETS = [/* __ASSET_URLS_PLACEHOLDER__ */];
+
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -11,6 +13,7 @@ const STATIC_ASSETS = [
   '/icon.png',
   '/icon-192.png',
   '/icon-512.png',
+  ...BUILD_ASSETS,
 ];
 
 self.addEventListener('install', (event) => {
@@ -43,19 +46,27 @@ self.addEventListener('fetch', (event) => {
 
       return fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            if (request.url.startsWith('http')) {
+          const url = new URL(request.url);
+          if (
+            response.ok &&
+            url.origin === self.location.origin &&
+            !url.pathname.startsWith('/api/')
+          ) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
               cache.put(request, clone);
-            }
-          });
+            });
+          }
           return response;
         })
         .catch(() => {
           if (request.mode === 'navigate') {
             return caches.match('/index.html');
           }
-          return undefined;
+          return new Response('Offline', {
+            status: 503,
+            statusText: 'Service Unavailable',
+          });
         });
     })
   );
