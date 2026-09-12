@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import TabBar, { type ScreenId } from './components/TabBar';
+import InstallPrompt from './components/InstallPrompt';
 import HomeScreen from './screens/HomeScreen';
 import EventsScreen from './screens/EventsScreen';
 import NewsScreen from './screens/NewsScreen';
@@ -20,6 +21,7 @@ export default function App() {
 
   return (
     <div className={`phone${night ? ' night' : ''}`}>
+      <InstallPrompt />
       {screen === 'home' && <HomeScreen />}
       {screen === 'events' && <EventsScreen />}
       {screen === 'news' && <NewsScreen />}
