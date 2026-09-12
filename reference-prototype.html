@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BROADSHEET — Protótipo de UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F3EDDF;
+    --ink: #2B2B2B;
+  }
+  .night {
+    --paper: #2B2B2B;
+    --ink: #F9F7F1;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; }
+  body {
+    background: #1e1e1e;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    gap: 14px;
+  }
+  .stage-label {
+    color: #F9F7F1;
+    font: 600 11px 'Inter', sans-serif;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  /* ---------- PHONE FRAME ---------- */
+  .phone {
+    width: 390px;
+    height: 780px;
+    background: var(--paper);
+    color: var(--ink);
+    border: 3px solid var(--ink);
+    position: relative;
+    overflow: hidden;
+    transition: background .4s, color .4s;
+  }
+  /* ---------- WALKTHROUGH PROGRESS ---------- */
+  .progress {
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    display: flex; z-index: 50; background: transparent;
+  }
+  .progress .seg { flex: 1; position: relative; background: transparent; border-right: 2px solid var(--paper); }
+  .progress .seg:last-child { border-right: none; }
+  .progress .seg::after {
+    content: ''; position: absolute; inset: 0; background: var(--ink);
+    transform: scaleX(0); transform-origin: left; transition: none;
+  }
+  .progress .seg.active-fill::after { animation: fillbar 4s linear forwards; }
+  .progress .seg.done::after { transform: scaleX(1); }
+  .progress .seg.off::after { transform: scaleX(0); }
+  @keyframes fillbar { from { transform: scaleX(0);} to { transform: scaleX(1);} }
+
+  /* ---------- SCREENS ---------- */
+  .screen {
+    position: absolute; inset: 0; bottom: 58px;
+    padding: 26px 20px 20px;
+    overflow-y: auto;
+    opacity: 0; pointer-events: none;
+    transform: translateX(24px);
+    transition: opacity .45s ease, transform .45s ease;
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { opacity: 1; pointer-events: auto; transform: translateX(0); }
+  .screen.prev { transform: translateX(-24px); }
+
+  .rule-thin { border: 0; border-top: 1px solid var(--ink); }
+  .rule-thick { border: 0; border-top: 5px solid var(--ink); }
+  .rule-double { border: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); height: 5px; }
+
+  .serif { font-family: 'Playfair Display', serif; }
+  .sans { font-family: 'Inter', sans-serif; }
+
+  /* ---------- TAB BAR ---------- */
+  .tabbar {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 58px;
+    display: flex; border-top: 1px solid var(--ink); background: var(--paper); z-index: 40;
+  }
+  .tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; cursor: pointer; border: none; background: transparent; color: var(--ink);
+    border-top: 4px solid transparent; padding-top: 2px;
+    transition: background .2s;
+  }
+  .tab svg { width: 22px; height: 22px; stroke: var(--ink); fill: none; stroke-width: 1.5; }
+  .tab span { font: 600 8.5px 'Inter', sans-serif; letter-spacing: 2px; text-transform: uppercase; }
+  .tab.active { border-top: 4px solid var(--ink); }
+  .tab.active svg { stroke-width: 2.2; }
+
+  /* ============ SCREEN 1 : HOME ============ */
+  .masthead { text-align: center; }
+  .masthead h1 { font: 900 40px/1 'Playfair Display', serif; letter-spacing: 1px; }
+  .masthead .dateline {
+    display: flex; align-items: center; gap: 10px; margin: 10px 0 0;
+  }
+  .masthead .dateline::before, .masthead .dateline::after {
+    content: ''; flex: 1; border-top: 1px solid var(--ink);
+  }
+  .masthead .dateline span { font: 600 8.5px 'Inter', sans-serif; letter-spacing: 2.5px; text-transform: uppercase; white-space: nowrap; }
+
+  .focusbox {
+    border: 1px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 3px;
+    margin: 22px 6px 0; padding: 20px 16px 18px; text-align: center;
+  }
+  .focusbox .kicker { font: 700 9px 'Inter', sans-serif; letter-spacing: 3px; text-transform: uppercase; }
+  .focusbox .task { font: italic 700 17px 'Playfair Display', serif; margin: 8px 0 4px; }
+  .focusbox .timer { font: 700 76px/1 'Playfair Display', serif; letter-spacing: 2px; margin: 10px 0 14px; font-variant-numeric: tabular-nums; }
+  .btn-ink {
+    display: block; width: 100%; background: var(--ink); color: var(--paper);
+    border: 1px solid var(--ink); padding: 13px 0; cursor: pointer;
+    font: 700 13px 'Inter', sans-serif; letter-spacing: 2px;
+    transition: background .4s, color .4s;
+  }
+  .btn-ink:active { opacity: .85; }
+
+  .cat { margin-top: 20px; }
+  .cat h3 {
+    font: 700 11px 'Inter', sans-serif; letter-spacing: 3.5px; text-transform: uppercase;
+    border-top: 1px solid var(--ink); padding-top: 10px; margin-bottom: 6px;
+    display: flex; justify-content: space-between;
+  }
+  .cat h3 small { font: 500 9px 'Inter', sans-serif; letter-spacing: 1px; opacity: .7; }
+  .taskrow { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px dotted var(--ink); cursor: pointer; }
+  .taskrow:last-child { border-bottom: none; }
+  .box {
+    width: 15px; height: 15px; border: 2px solid var(--ink); flex: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .box svg { width: 11px; height: 11px; stroke: var(--ink); stroke-width: 2.5; fill: none; opacity: 0; }
+  .taskrow.done .box svg { opacity: 1; }
+  .taskrow .label { font: 500 13px 'Inter', sans-serif; }
+  .taskrow.done .label { text-decoration: line-through; text-decoration-thickness: 2px; opacity: .55; }
+
+  /* ============ SCREEN 2 : EVENTS ============ */
+  .cal-title { font: 700 26px 'Playfair Display', serif; text-align: center; letter-spacing: 1px; }
+  .cal-sub { text-align: center; font: 600 9px 'Inter', sans-serif; letter-spacing: 3px; text-transform: uppercase; margin: 6px 0 14px; }
+  table.cal { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.cal th, table.cal td {
+    border: 1px solid var(--ink); text-align: center; padding: 0; position: relative;
+  }
+  table.cal th { font: 700 9px 'Inter', sans-serif; letter-spacing: 1px; padding: 6px 0; }
+  table.cal td { height: 44px; font: 500 12px 'Inter', sans-serif; vertical-align: middle; }
+  td.empty { background-image: linear-gradient(135deg, transparent 47%, var(--ink) 47%, var(--ink) 53%, transparent 53%); opacity: .25; }
+  td.sel { font-weight: 700; }
+  .ring { position: absolute; inset: -7px -5px; pointer-events: none; }
+  .ring path { stroke: var(--ink); fill: none; stroke-width: 2.6; stroke-linecap: round; }
+
+  .agenda { margin-top: 20px; }
+  .agenda h3 { font: 700 11px 'Inter', sans-serif; letter-spacing: 3.5px; text-transform: uppercase; border-top: 3px solid var(--ink); padding-top: 10px; margin-bottom: 2px; }
+  .ag-row { display: flex; align-items: center; gap: 12px; padding: 11px 2px; border-bottom: 1px dotted var(--ink); }
+  .ag-row:last-child { border-bottom: none; }
+  .ag-time { font: 700 15px 'Playfair Display', serif; width: 52px; flex: none; }
+  .ag-name { font: 500 13px 'Inter', sans-serif; flex: 1; }
+  .ag-bell { width: 16px; height: 16px; stroke: var(--ink); fill: none; stroke-width: 1.6; flex: none; }
+
+  /* ============ SCREEN 3 : NEWS ============ */
+  .news-kicker { font: 700 9px 'Inter', sans-serif; letter-spacing: 3px; text-transform: uppercase; border-top: 5px solid var(--ink); padding-top: 8px; }
+  .photo { width: 100%; border: 1px solid var(--ink); border-top: none; display: block; }
+  .photo svg { display: block; width: 100%; height: auto; filter: grayscale(1) contrast(1.05); }
+  .caption { font: 500 9px 'Inter', sans-serif; letter-spacing: .5px; opacity: .75; padding: 5px 0 0; }
+  .headline { font: 900 24px/1.15 'Playfair Display', serif; margin: 8px 0 8px; }
+  .summary {
+    font: 400 13px/1.5 'Inter', sans-serif;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .news-divider { height: 8px; background: var(--ink); margin: 22px 0; }
+
+  /* ============ SCREEN 4 : PROFILE ============ */
+  .colo-title { font: 700 26px 'Playfair Display', serif; }
+  .colo-sub { font: 600 9px 'Inter', sans-serif; letter-spacing: 3px; text-transform: uppercase; margin: 6px 0 18px; border-top: 1px solid var(--ink); padding-top: 8px; }
+  .staff { font: 500 13px/1.9 'Inter', sans-serif; margin-bottom: 20px; }
+  .staff b { font-weight: 700; }
+  table.stats { width: 100%; border-collapse: collapse; }
+  table.stats th, table.stats td { border: 1px solid var(--ink); padding: 9px 10px; text-align: left; }
+  table.stats th { font: 700 9px 'Inter', sans-serif; letter-spacing: 2.5px; text-transform: uppercase; }
+  table.stats td { font: 500 13px 'Inter', sans-serif; }
+  table.stats td.num { font: 700 17px 'Playfair Display', serif; text-align: right; white-space: nowrap; }
+
+  .nightrow { margin-top: 24px; border-top: 3px solid var(--ink); padding-top: 14px; }
+  .nightrow .lbl { font: 700 11px 'Inter', sans-serif; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
+  .nightrow .desc { font: 400 11px 'Inter', sans-serif; opacity: .7; margin-bottom: 12px; }
+  .toggle-ink {
+    width: 100%; background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
+    padding: 13px 0; cursor: pointer; font: 700 13px 'Inter', sans-serif; letter-spacing: 2px;
+    display: flex; justify-content: space-between; padding: 13px 16px;
+    transition: background .4s, color .4s;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage-label">BROADSHEET — Protótipo de UI · Modo clipe</div>
+
+<div class="phone" id="phone">
+  <div class="progress" id="progress"></div>
+
+  <!-- ================= HOME ================= -->
+  <section class="screen active" id="s-home">
+    <header class="masthead">
+      <h1>O FOCO</h1>
+      <div class="dateline"><span>Terça-feira, 8 de Setembro de 2026</span></div>
+    </header>
+
+    <div class="focusbox">
+      <div class="kicker">Edição do Momento</div>
+      <div class="task">Ler capítulo 4 de História</div>
+      <div class="timer" id="timer">25:00</div>
+      <button class="btn-ink" id="focusBtn">[ INICIAR FOCO ]</button>
+    </div>
+
+    <div class="cat" id="cats"></div>
+  </section>
+
+  <!-- ================= EVENTS ================= -->
+  <section class="screen" id="s-events">
+    <div class="cal-title">ALMANAQUE</div>
+    <div class="cal-sub">Setembro — Anno MMXXVI</div>
+    <table class="cal" id="calGrid"></table>
+
+    <div class="agenda">
+      <h3>Agenda do Dia</h3>
+      <div class="ag-row"><div class="ag-time">07:30</div><div class="ag-name">Reunião editorial</div><svg class="ag-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+      <div class="ag-row"><div class="ag-time">12:00</div><div class="ag-name">Almoço com a equipe</div><svg class="ag-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+      <div class="ag-row"><div class="ag-time">19:00</div><div class="ag-name">Aula de piano</div><svg class="ag-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+      <div class="ag-row"><div class="ag-time">21:30</div><div class="ag-name">Deadline: matéria de capa</div><svg class="ag-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+    </div>
+  </section>
+
+  <!-- ================= NEWS ================= -->
+  <section class="screen" id="s-news">
+    <div class="news-kicker">Edição da Manhã — Fotojornalismo</div>
+
+    <div style="margin-top:12px;">
+      <div class="photo">
+        <svg viewBox="0 0 350 210" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#1a1a1a"/></pattern>
+          </defs>
+          <rect width="350" height="210" fill="#c9c5ba"/>
+          <rect y="120" width="350" height="90" fill="#8a867c"/>
+          <rect x="30" y="60" width="55" height="150" fill="url(#dots)" opacity=".55"/>
+          <rect x="110" y="30" width="70" height="180" fill="url(#dots)" opacity=".75"/>
+          <rect x="205" y="75" width="48" height="135" fill="url(#dots)" opacity=".4"/>
+          <rect x="272" y="45" width="60" height="165" fill="url(#dots)" opacity=".6"/>
+          <circle cx="330" cy="28" r="16" fill="#6e6a60"/>
+        </svg>
+      </div>
+      <div class="caption">A cidade amanhece sob os velhos telhados do centro — arquivo, 2026.</div>
+      <h2 class="headline">Cidades repensam os espaços públicos</h2>
+      <p class="summary">Prefeitos e urbanistas discutem um novo pacto pelas praças. O retorno do calçadão, dos bancos de madeira e dos coretos imprime um ritmo mais lento — e mais humano — às avenidas que antes pertenciam apenas aos carros.</p>
+    </div>
+
+    <div class="news-divider"></div>
+
+    <div>
+      <div class="photo">
+        <svg viewBox="0 0 350 210" xmlns="http://www.w3.org/2000/svg">
+          <rect width="350" height="210" fill="#b5b1a6"/>
+          <rect x="20" y="20" width="310" height="170" fill="#4a4740"/>
+          <rect x="45" y="45" width="26" height="120" fill="#d8d4c9" opacity=".8"/>
+          <rect x="90" y="45" width="26" height="120" fill="#d8d4c9" opacity=".55"/>
+          <rect x="135" y="45" width="26" height="120" fill="#d8d4c9" opacity=".65"/>
+          <rect x="180" y="45" width="26" height="120" fill="#d8d4c9" opacity=".5"/>
+          <rect x="225" y="45" width="26" height="120" fill="#d8d4c9" opacity=".75"/>
+          <rect x="270" y="45" width="26" height="120" fill="#d8d4c9" opacity=".6"/>
+          <rect x="45" y="150" width="251" height="14" fill="#201e1b"/>
+        </svg>
+      </div>
+      <div class="caption">Prateleiras da biblioteca do bairro, reaberta após reforma — foto: redação.</div>
+      <h2 class="headline">O renascer das bibliotecas de bairro</h2>
+      <p class="summary">Reabertas após anos fechadas, as bibliotecas de bairro voltam a ser ponto de encontro. Leitura em voz alta, jornais do dia e café de manga: a comunidade redescobre o prédio que sempre foi seu.</p>
+    </div>
+
+    <div class="news-divider"></div>
+  </section>
+
+  <!-- ================= PROFILE ================= -->
+  <section class="screen" id="s-profile">
+    <div class="colo-title">EXPEDIENTE</div>
+    <div class="colo-sub">Colofão · Perfil do Leitor</div>
+
+    <div class="staff">
+      <b>Nome:</b> Bruno Nunes<br>
+      <b>Cargo:</b> Editor-Chefe<br>
+      <b>Setor:</b> Foco &amp; Produtividade<br>
+      <b>Desde:</b> Setembro de 2026
+    </div>
+
+    <table class="stats">
+      <tr><th>Indicador</th><th style="text-align:right;">Registro</th></tr>
+      <tr><td>Horas em Foco</td><td class="num">42h 15m</td></tr>
+      <tr><td>Tarefas Concluídas</td><td class="num">128</td></tr>
+      <tr><td>Dias Consecutivos</td><td class="num">12</td></tr>
+      <tr><td>Matérias Lidas</td><td class="num">47</td></tr>
+      <tr><td>Eventos Comparecidos</td><td class="num">9</td></tr>
+    </table>
+
+    <div class="nightrow">
+      <div class="lbl">Edição Noturna</div>
+      <div class="desc">Alterna a tiragem para a versão noturna (modo escuro), invertendo tinta e papel.</div>
+      <button class="toggle-ink" id="nightToggle"><span>NIGHT EDITION</span><span id="nightState">OFF</span></button>
+    </div>
+  </section>
+
+  <!-- ================= TAB BAR ================= -->
+  <nav class="tabbar" id="tabbar">
+    <button class="tab active" data-s="s-home">
+      <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5"/></svg><span>Home</span>
+    </button>
+    <button class="tab" data-s="s-events">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><span>Events</span>
+    </button>
+    <button class="tab" data-s="s-news">
+      <svg viewBox="0 0 24 24"><path d="M4 4h13v16H4zM17 8h3v12h-3M7 8h7M7 12h7M7 16h4"/></svg><span>News</span>
+    </button>
+    <button class="tab" data-s="s-profile">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Profile</span>
+    </button>
+  </nav>
+</div>
+
+<button class="btn-ink" id="playBtn" style="width:390px; background:#F3EDDF; color:#2B2B2B; border:1px solid #F3EDDF;">[ PAUSAR CLIPE ]</button>
+
+<script>
+  const SCREENS = ['s-home', 's-events', 's-news', 's-profile'];
+  let cur = 0, playing = true, tick = null;
+
+  const progress = document.getElementById('progress');
+  SCREENS.forEach(() => {
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    progress.appendChild(seg);
+  });
+
+  function show(idx) {
+    cur = idx;
+    SCREENS.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.classList.toggle('active', i === idx);
+      el.classList.toggle('prev', i < idx);
+    });
+    document.querySelectorAll('.tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.s === SCREENS[idx]));
+    document.querySelectorAll('.progress .seg').forEach((seg, i) => {
+      seg.classList.remove('active-fill', 'done', 'off');
+      void seg.offsetWidth;
+      if (i < idx) seg.classList.add('done');
+      else if (i > idx) seg.classList.add('off');
+      else seg.classList.add('active-fill');
+    });
+  }
+
+  function startLoop() {
+    clearInterval(tick);
+    if (playing) {
+      show(cur);
+      tick = setInterval(() => show((cur + 1) % SCREENS.length), 4000);
+    } else {
+      document.querySelectorAll('.progress .seg').forEach((seg, i) => {
+        seg.classList.remove('active-fill', 'off');
+        seg.classList.toggle('done', i <= cur);
+      });
+    }
+  }
+
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    playing = false; updatePlayBtn();
+    show(SCREENS.indexOf(t.dataset.s));
+    clearInterval(tick);
+  }));
+
+  const playBtn = document.getElementById('playBtn');
+  function updatePlayBtn() { playBtn.textContent = playing ? '[ PAUSAR CLIPE ]' : '[ RETOMAR CLIPE ]'; }
+  playBtn.addEventListener('click', () => { playing = !playing; updatePlayBtn(); startLoop(); });
+
+  /* ---- Night Edition ---- */
+  document.getElementById('nightToggle').addEventListener('click', () => {
+    document.getElementById('phone').classList.toggle('night');
+    document.getElementById('nightState').textContent =
+      document.getElementById('phone').classList.contains('night') ? 'ON' : 'OFF';
+  });
+
+  /* ---- Tasks ---- */
+  const CATS = [
+    ['PERSONAL', [['Meditar 10 minutos', true], ['Ligar para a vovó', false]]],
+    ['STUDY', [['Ler capítulo 4 de História', true], ['Resolver 5 exercícios de cálculo', false]]],
+    ['WORK', [['Responder e-mails do cliente', false], ['Revisar proposta de projeto', true]]],
+    ['FOOD', [['Planejar o jantar da semana', false]]],
+  ];
+  const catsEl = document.getElementById('cats');
+  CATS.forEach(([name, tasks]) => {
+    const div = document.createElement('div');
+    div.className = 'cat';
+    const done = tasks.filter(t => t[1]).length;
+    div.innerHTML = `<h3>${name}<small>${done}/${tasks.length}</small></h3>`;
+    tasks.forEach(([label, doneNow]) => {
+      const row = document.createElement('div');
+      row.className = 'taskrow' + (doneNow ? ' done' : '');
+      row.innerHTML = `<div class="box"><svg viewBox="0 0 24 24"><path d="M4 13l5 5L20 7"/></svg></div><div class="label">${label}</div>`;
+      row.addEventListener('click', () => row.classList.toggle('done'));
+      div.appendChild(row);
+    });
+    catsEl.appendChild(div);
+  });
+
+  /* ---- Calendar: September 2026, week starts Sunday ---- */
+  const DAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  const grid = document.getElementById('calGrid');
+  let html = '<tr>' + DAYS.map(d => `<th>${d}</th>`).join('') + '</tr>';
+  const weeks = [
+    [null, null, 1, 2, 3, 4, 5],
+    [6, 7, 8, 9, 10, 11, 12],
+    [13, 14, 15, 16, 17, 18, 19],
+    [20, 21, 22, 23, 24, 25, 26],
+    [27, 28, 29, 30, null, null, null],
+  ];
+  weeks.forEach(w => {
+    html += '<tr>' + w.map(d => {
+      if (d === null) return '<td class="empty"></td>';
+      if (d === 8) return `<td class="sel">${d}<svg class="ring" viewBox="0 0 60 52"><path d="M30 4 C 46 2, 56 12, 55 25 C 54 40, 44 49, 29 48 C 15 47, 5 39, 6 24 C 7 11, 16 5, 31 5"/></svg></td>`;
+      return `<td>${d}</td>`;
+    }).join('') + '</tr>';
+  });
+  grid.innerHTML = html;
+
+  /* ---- Pomodoro timer (demo) ---- */
+  let remaining = 25 * 60, running = false, tId = null;
+  const timerEl = document.getElementById('timer'), focusBtn = document.getElementById('focusBtn');
+  focusBtn.addEventListener('click', () => {
+    running = !running;
+    focusBtn.textContent = running ? '[ PAUSAR FOCO ]' : '[ INICIAR FOCO ]';
+    if (running) tId = setInterval(() => {
+      remaining = Math.max(0, remaining - 1);
+      timerEl.textContent = String(Math.floor(remaining / 60)).padStart(2, '0') + ':' + String(remaining % 60).padStart(2, '0');
+    }, 1000);
+    else clearInterval(tId);
+  });
+
+  startLoop();
+</script>
+</body>
+</html>

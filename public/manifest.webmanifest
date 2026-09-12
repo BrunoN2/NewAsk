@@ -1,0 +1,11 @@
+{
+  "name": "NuvAsk · O FOCO",
+  "short_name": "NuvAsk",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e3dbc6",
+  "theme_color": "#e3dbc6",
+  "icons": [
+    { "src": "/icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
