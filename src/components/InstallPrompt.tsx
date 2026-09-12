@@ -10,10 +10,14 @@ const DISMISS_KEY = 'nuvask.install-prompt-dismissed';
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISS_KEY) === 'true');
+  const [dismissed, setDismissed] = useState(false);
   const [isIos, setIsIos] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setDismissed(localStorage.getItem(DISMISS_KEY) === 'true');
+    }
+
     const isIOS =
       /iPad|iPhone|iPod/.test(navigator.userAgent) &&
       !(window as unknown as { MSStream: boolean }).MSStream;

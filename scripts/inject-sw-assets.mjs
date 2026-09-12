@@ -1,7 +1,8 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, posix } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const distDir = new URL('../dist', import.meta.url).pathname;
+const distDir = fileURLToPath(new URL('../dist', import.meta.url));
 const assetsDir = join(distDir, 'assets');
 const swPath = join(distDir, 'sw.js');
 
