@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { addFocused, bumpCompleted, bumpStreak } from '../stats';
 import { taskDone, taskUndo, pluck, startMorningAmbience, stopMorningAmbience } from '../audio';
 import CampfireFocus from '../components/CampfireFocus';
+import Starfield from '../components/Starfield';
 
 type Task = { id: string; label: string; done: boolean };
 type Category = { name: string; tasks: Task[] };
@@ -63,7 +64,7 @@ function loadTasks(): Category[] {
 
 export default function HomeScreen() {
   const [cats, setCats] = useState<Category[]>(loadTasks);
-  const [remaining, setRemaining] = useState(25 * 60);
+  const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
   const [editing, setEditing] = useState<{ c: number; i: number } | null>(null);
   const [draft, setDraft] = useState('');
@@ -123,13 +124,17 @@ export default function HomeScreen() {
   useEffect(() => {
     if (running) {
       intervalRef.current = window.setInterval(
-        () => setRemaining((r) => Math.max(0, r - 1)),
+        () => setElapsed((e) => e + 1),
         1000,
       );
     }
     return () => {
       if (intervalRef.current !== null) window.clearInterval(intervalRef.current);
     };
+  }, [running]);
+
+  useEffect(() => {
+    document.querySelector('.phone')?.classList.toggle('focus-night', running);
   }, [running]);
 
   useEffect(
@@ -140,6 +145,7 @@ export default function HomeScreen() {
       }
       stopMorningAmbience();
       releaseWake();
+      document.querySelector('.phone')?.classList.remove('focus-night');
     },
     [],
   );
@@ -243,9 +249,6 @@ export default function HomeScreen() {
   const firstPending =
     cats.flatMap((c) => c.tasks).find((t) => !t.done)?.label ?? null;
 
-  const addFive = () =>
-    setRemaining((r) => Math.min(99 * 60, r + 5 * 60));
-
   const today = new Intl.DateTimeFormat('pt-BR', {
     weekday: 'long',
     day: 'numeric',
@@ -271,6 +274,7 @@ export default function HomeScreen() {
 
   return (
     <section className="screen">
+      <Starfield active={running} />
       <header className="masthead">
         <h1>O FOCO</h1>
         <div className="dateline">
@@ -281,14 +285,7 @@ export default function HomeScreen() {
       <div className="focusbox">
         <div className="kicker">{kickerLabel}</div>
         <div className="task">{firstPending ?? 'Sem tarefas na fila — adicione uma'}</div>
-        <CampfireFocus remaining={remaining} total={25 * 60} running={running} />
-        <button
-          className="ink-mini addfive"
-          title="Modo avião — adicione 5 minutos de foco do dispositivo"
-          onClick={addFive}
-        >
-          ＋ 5 MIN
-        </button>
+        <CampfireFocus elapsed={elapsed} running={running} />
         <button
           className="btn-ink"
           onClick={() => {

@@ -1,19 +1,25 @@
 interface CampfireFocusProps {
-  remaining: number;
-  total: number;
+  elapsed: number;
   running: boolean;
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export default function CampfireFocus({ remaining, total, running }: CampfireFocusProps) {
+export default function CampfireFocus({ elapsed, running }: CampfireFocusProps) {
+  const CYCLE = 25 * 60;
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
-  const progress = total > 0 ? remaining / total : 0;
+  const progress = CYCLE > 0 ? (elapsed % CYCLE) / CYCLE : 0;
   const offset = circumference * (1 - progress);
 
-  const minutes = Math.floor(remaining / 60);
-  const seconds = remaining % 60;
+  const hours = Math.floor(elapsed / 3600);
+  const minutes = Math.floor((elapsed % 3600) / 60);
+  const seconds = elapsed % 60;
+
+  const timeText =
+    hours > 0
+      ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+      : `${pad(minutes)}:${pad(seconds)}`;
 
   return (
     <div className={`campfire-focus${running ? ' running' : ''}`}>
@@ -43,14 +49,19 @@ export default function CampfireFocus({ remaining, total, running }: CampfireFoc
         <div className="flame flame--inner" />
       </div>
       <div className="campfire-sparks">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="spark" style={{ animationDelay: `${i * 0.35}s` }} />
+        {Array.from({ length: running ? 3 : 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="spark"
+            style={{
+              animationDelay: `${i * (running ? 0.7 : 0.35)}s`,
+              animationDuration: running ? '2.8s' : '2.5s',
+            }}
+          />
         ))}
       </div>
 
-      <div className="campfire-timer">
-        {pad(minutes)}:{pad(seconds)}
-      </div>
+      <div className="campfire-timer">{timeText}</div>
     </div>
   );
 }

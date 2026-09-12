@@ -778,11 +778,6 @@ table.stats td.num {
   }
 }
 
-.focusbox .ink-mini.addfive {
-  display: inline-block;
-  margin: 0 0 14px;
-  letter-spacing: 1.5px;
-}
 
 /* ============ 3-MONTH NAVIGATION ============ */
 .cal-nav {
@@ -1175,6 +1170,99 @@ button.ag-month {
   .campfire-glow,
   .flame,
   .spark {
+    animation: none;
+  }
+}
+
+/* ============ FOCUS NIGHT MODE ============ */
+.phone.focus-night {
+  background: #16120e;
+  color: #f9f7f1;
+  transition:
+    background 0.8s ease,
+    color 0.8s ease;
+}
+
+.phone.focus-night .screen {
+  background: radial-gradient(
+    ellipse at 50% 80%,
+    rgba(176, 98, 44, 0.12) 0%,
+    transparent 60%
+  );
+}
+
+.phone.focus-night .masthead,
+.phone.focus-night .dateline,
+.phone.focus-night .kicker,
+.phone.focus-night .task,
+.phone.focus-night .cat h3,
+.phone.focus-night .label,
+.phone.focus-night .campfire-timer {
+  color: #f9f7f1;
+}
+
+.phone.focus-night .rule-thin,
+.phone.focus-night .rule-thick,
+.phone.focus-night .cat h3,
+.phone.focus-night .tabbar {
+  border-color: rgba(249, 247, 241, 0.25);
+}
+
+.phone.focus-night .tabbar {
+  background: #16120e;
+}
+
+.phone.focus-night .box {
+  border-color: rgba(249, 247, 241, 0.4);
+}
+
+.phone.focus-night .box svg {
+  stroke: #f9f7f1;
+}
+
+/* ============ STARRY BACKGROUND ============ */
+.starfield {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  z-index: 0;
+}
+
+.starfield.active {
+  opacity: 1;
+}
+
+.masthead,
+.focusbox,
+.cat {
+  position: relative;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  background: #fff8e7;
+  border-radius: 50% !important;
+  box-shadow: 0 0 2px rgba(255, 248, 231, 0.6);
+  animation: twinkle ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star {
     animation: none;
   }
 }
