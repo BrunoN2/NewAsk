@@ -1267,6 +1267,125 @@ button.ag-month {
   }
 }
 
+.install-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(22, 18, 14, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.install-modal__content {
+  width: 100%;
+  max-width: 360px;
+  padding: 36px 28px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.install-modal__icon {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 18px;
+  border-radius: 22px;
+  display: block;
+}
+
+.install-modal__title {
+  font-size: 28px;
+  margin: 0 0 10px;
+  line-height: 1.1;
+}
+
+.install-modal__tagline {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+  color: var(--ink);
+  opacity: 0.85;
+}
+
+.install-modal__description {
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0 0 28px;
+  color: var(--ink);
+  opacity: 0.75;
+}
+
+.install-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.install-modal__primary {
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--ink);
+  color: var(--paper);
+  border: 2px solid var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.install-modal__primary:hover {
+  opacity: 0.88;
+}
+
+.install-modal__secondary {
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.install-modal__secondary:hover {
+  opacity: 1;
+}
+
+.install-modal__ios-tip {
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.install-modal__ios-tip p {
+  margin: 0 0 22px;
+}
+
+@media (max-width: 430px) {
+  .install-modal {
+    padding: 20px;
+  }
+
+  .install-modal__content {
+    padding: 30px 22px;
+  }
+
+  .install-modal__title {
+    font-size: 24px;
+  }
+}
+
 /* ============ MOBILE PORT ============ */
 /* phones: the sheet fills the viewport, dynamic viewport so browser UI
    hide/show does not clip, and safe areas (status bar / home bar) respected */
