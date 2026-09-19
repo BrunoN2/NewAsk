@@ -9,7 +9,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import './broadsheet.css';
 
 const NIGHT_KEY = 'broadsheet.night';
-const SKIP_KEY = 'nuvask.skip-install';
+const SKIP_KEY = 'newask.skip-install';
 
 function isStandalone() {
   if (typeof window === 'undefined') return false;

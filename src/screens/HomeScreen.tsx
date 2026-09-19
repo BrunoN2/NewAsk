@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { addFocused, bumpCompleted, bumpStreak } from '../stats';
-import { taskDone, taskUndo, pluck, startMorningAmbience, stopMorningAmbience } from '../audio';
+import { taskDone, taskUndo, pluck, startFocusMusic, stopFocusMusic } from '../audio';
 import CampfireFocus from '../components/CampfireFocus';
 import Starfield from '../components/Starfield';
 
@@ -143,7 +143,7 @@ export default function HomeScreen() {
         addFocused(Date.now() - startedAtRef.current);
         startedAtRef.current = null;
       }
-      stopMorningAmbience();
+      stopFocusMusic();
       releaseWake();
       document.querySelector('.phone')?.classList.remove('focus-night');
     },
@@ -291,11 +291,11 @@ export default function HomeScreen() {
           onClick={() => {
             if (running) {
               accumulateFocus();
-              stopMorningAmbience();
+              stopFocusMusic();
               releaseWake();
             } else {
               startedAtRef.current = Date.now();
-              startMorningAmbience();
+              startFocusMusic();
               void acquireWake();
             }
             setRunning((r) => !r);

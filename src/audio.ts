@@ -1,6 +1,6 @@
-// Procedural UI sounds + fireplace ambience via Web Audio. Keyless and
-// asset-free: works offline and passes hosting checks.
+// Procedural UI sounds via Web Audio. Keyless and asset-free.
 let ctx: AudioContext | null = null;
+let focusMusic: HTMLAudioElement | null = null;
 
 function ac(): AudioContext {
   if (!ctx) ctx = new AudioContext();
@@ -8,6 +8,23 @@ function ac(): AudioContext {
   return ctx;
 }
 
+// ---- focus music (Outer Wilds theme) ----
+export function startFocusMusic() {
+  if (!focusMusic) {
+    focusMusic = new Audio('/outer-wilds-theme.mp3');
+    focusMusic.loop = true;
+    focusMusic.volume = 0.45;
+  }
+  void focusMusic.play().catch(() => {});
+}
+
+export function stopFocusMusic() {
+  if (!focusMusic) return;
+  focusMusic.pause();
+  focusMusic.currentTime = 0;
+}
+
+// ---- interaction sounds ----
 function blip(
   t: number,
   f0: number,
@@ -32,7 +49,6 @@ function blip(
   osc.stop(t + dur + 0.05);
 }
 
-// ---- interaction sounds ----
 export function tap() {
   blip(ac().currentTime + 0.02, 740, 620, 0.05, 0.06);
 }
@@ -89,66 +105,4 @@ export function swish() {
   bp.connect(g);
   g.connect(c.destination);
   src.start(t);
-}
-
-// ---- fireplace ambience (sombra) ----
-let amb: { gain: GainNode } | null = null;
-let ambTimer: number | null = null;
-
-function crackleLoop(c: AudioContext, out: GainNode) {
-  const dur = 5;
-  const buf = c.createBuffer(1, Math.floor(c.sampleRate * dur), c.sampleRate);
-  const data = buf.getChannelData(0);
-  // sparse estalos (~1/s): each is 3 samples with decay, not a raw spike
-  // (isolated spikes at high rate sound like continuous static sizzle)
-  let i = 1;
-  while (i < data.length - 3) {
-    if (Math.random() < 0.0002) {
-      const a = (Math.random() * 2 - 1) * 0.25;
-      data[i] = a;
-      data[i + 1] = a * 0.5;
-      data[i + 2] = a * 0.2;
-      i += 3;
-    }
-    i++;
-  }
-  const src = c.createBufferSource();
-  src.buffer = buf;
-  src.loop = true;
-  const lp = c.createBiquadFilter();
-  lp.type = 'lowpass';
-  lp.frequency.value = 2200;
-  const g = c.createGain();
-  g.gain.value = 0.2;
-  src.connect(lp);
-  lp.connect(g);
-  g.connect(out);
-  src.start();
-}
-
-export function startMorningAmbience() {
-  const c = ac();
-  if (!amb) {
-    const out = c.createGain();
-    out.gain.value = 0.0001;
-    out.connect(c.destination);
-    crackleLoop(c, out);
-    amb = { gain: out };
-  }
-  const now = c.currentTime;
-  amb.gain.gain.cancelScheduledValues(now);
-  amb.gain.gain.setValueAtTime(Math.max(amb.gain.gain.value, 0.0001), now);
-  amb.gain.gain.linearRampToValueAtTime(0.42, now + 1);
-}
-
-export function stopMorningAmbience() {
-  if (!amb) return;
-  const now = ctx!.currentTime;
-  amb.gain.gain.cancelScheduledValues(now);
-  amb.gain.gain.setValueAtTime(Math.max(amb.gain.gain.value, 0.0001), now);
-  amb.gain.gain.linearRampToValueAtTime(0.0001, now + 0.8);
-  if (ambTimer !== null) {
-    window.clearTimeout(ambTimer);
-    ambTimer = null;
-  }
 }

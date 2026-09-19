@@ -2,7 +2,7 @@
 /// <reference lib="es2020"/>
 /// <reference lib="webworker"/>
 
-const CACHE_NAME = 'nuvask-v3';
+const CACHE_NAME = 'newask-v1';
 const BUILD_ASSETS = [/* __ASSET_URLS_PLACEHOLDER__ */];
 
 const SHELL_ASSETS = [
@@ -13,6 +13,7 @@ const SHELL_ASSETS = [
   '/icon.png',
   '/icon-192.png',
   '/icon-512.png',
+  '/outer-wilds-theme.mp3',
 ];
 
 const STATIC_ASSETS = [...SHELL_ASSETS, ...BUILD_ASSETS];

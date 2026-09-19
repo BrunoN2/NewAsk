@@ -1,4 +1,4 @@
-# NuvAsk · O FOCO
+# NewAsk
 
 Aplicativo de produtividade minimalista para quem quer focar sem distrações. Desenvolvido com React, Vite e TypeScript.
 

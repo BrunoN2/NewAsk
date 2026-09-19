@@ -6,7 +6,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const DISMISS_KEY = 'nuvask.install-prompt-dismissed';
+const DISMISS_KEY = 'newask.install-prompt-dismissed';
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -51,7 +51,7 @@ export default function InstallPrompt() {
   if (deferredPrompt) {
     return (
       <div className="install-prompt">
-        <span className="install-prompt__text">Instalar NuvAsk no celular</span>
+        <span className="install-prompt__text">Instalar NewAsk no celular</span>
         <button className="install-prompt__btn" onClick={handleInstall} type="button">
           Instalar
         </button>
