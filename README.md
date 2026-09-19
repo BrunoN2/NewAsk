@@ -31,7 +31,7 @@ npm run preview  # preview do build local
 
 ## Publicação
 
-O projeto é publicado via Verdent Hosting. A cada `npm run build`, o service worker recebe os assets hasheados do Vite automaticamente.
+O projeto é publicado via Hostinger. A cada `npm run build`, o service worker recebe os assets hasheados do Vite automaticamente.
 
 ## Licença
 
